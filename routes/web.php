@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AdminController;
 use App\Http\Controllers\UserController;
 use App\Http\Middleware\TokenVerifyMiddleware;
 use Illuminate\Support\Facades\Route;
@@ -19,8 +20,18 @@ use Illuminate\Support\Facades\Route;
 //     return view('welcome');
 // });
 
-Route::post('/registration', [UserController::class, 'register']);
+Route::get('/userLogin', [UserController::class, 'LoginPage']);
+Route::get('/registration', [UserController::class, 'RegistrationPage']);
+
+Route::get('/sendOtp', [UserController::class, 'SendOtpPage']);
+
+Route::post('/register', [UserController::class, 'register']);
 Route::post('/login', [UserController::class, 'login']);
 Route::post('/otp-send', [UserController::class, 'otpSend']);
 Route::post('/otp-verify', [UserController::class, 'otpVerify']);
 Route::post('/reset-pass', [UserController::class, 'resetPassword'])->middleware([TokenVerifyMiddleware::class]);
+
+
+
+// Admin Route
+Route::get('/dashboard', [AdminController::class, 'adminPage']);
