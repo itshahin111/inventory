@@ -24,14 +24,15 @@ Route::get('/userLogin', [UserController::class, 'LoginPage']);
 Route::get('/registration', [UserController::class, 'RegistrationPage']);
 
 Route::get('/sendOtp', [UserController::class, 'SendOtpPage']);
+Route::get('/verifyOtp', [UserController::class, 'VerifyOTPPage']);
 
 Route::post('/register', [UserController::class, 'register']);
 Route::post('/login', [UserController::class, 'login']);
 Route::post('/otp-send', [UserController::class, 'otpSend']);
-Route::post('/otp-verify', [UserController::class, 'otpVerify']);
+Route::post('/otp-verify', [UserController::class, 'otpVerify'])->middleware([TokenVerifyMiddleware::class]);
+
 Route::post('/reset-pass', [UserController::class, 'resetPassword'])->middleware([TokenVerifyMiddleware::class]);
 
 
-
 // Admin Route
-Route::get('/dashboard', [AdminController::class, 'adminPage']);
+Route::get('/dashboard', [AdminController::class, 'adminPage'])->middleware([TokenVerifyMiddleware::class]);

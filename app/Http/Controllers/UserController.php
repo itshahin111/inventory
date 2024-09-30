@@ -65,21 +65,21 @@ class UserController extends Controller
         try {
             // Create a new user with hashed password
             User::create([
-                "firstName" => $request->input("firstName"),
-                "lastName" => $request->input("lastName"),
-                "email" => $request->input("email"),
-                "phone" => $request->input('phone'),
-                "password" => Hash::make($request->input("password")), // Hashing the password
+                'firstName' => $request->input('firstName'),
+                'lastName' => $request->input('lastName'),
+                'email' => $request->input('email'),
+                'phone' => $request->input('phone'),
+                'password' => Hash::make($request->input('password')), // Hashing the password
             ]);
 
             return response()->json([
-                "status" => true,
-                "message" => "Registration Successful",
+                'status' => true,
+                'message' => 'Registration Successful',
             ], 200);
         } catch (Exception $exception) {
             return response()->json([
-                "status" => false,
-                "message" => "Registration Failed: " . $exception->getMessage(),
+                'status' => false,
+                'message' => 'Registration Failed: ' . $exception->getMessage(),
             ], 500);
         }
     }
@@ -94,22 +94,20 @@ class UserController extends Controller
         ]);
 
         // Find user by email
-        $user = User::where('email', $request->input('email'))->first();
+        $user = User::where('email', $request->input('email'))->first(); // Fixed here
 
-        if ($user && Hash::check($request->input('password'), $user->password)) {
-            // Generate JWT token
-            $token = JwtToken::createToken($user->email);
+        if ($user !== null && Hash::check($request->input('password'), $user->password)) { // Check hashed password
+            $token = JwtToken::createToken($user->email, $user->id); // Pass the user ID
 
             return response()->json([
-                "status" => true,
-                "message" => "Login Successful",
-                "token" => $token,
-            ], 200);
+                'status' => true,
+                'message' => 'Login Successful',
+            ], 200)->cookie('token', $token, 60 * 24 * 30);
         } else {
             // Invalid credentials
             return response()->json([
-                "status" => false,
-                "message" => "Unauthorized",
+                'status' => false,
+                'message' => 'Unauthorized',
             ], 401);
         }
     }
@@ -123,15 +121,15 @@ class UserController extends Controller
 
         if ($count == 1) {
             Mail::to($email)->send(new OtpMail($otp));
-            User::where('email', '=', '$email')->update(['otp' => $otp]);
+            User::where('email', '=', $email)->update(['otp' => $otp]);
 
             return response()->json([
-                'status' => 'success',
+                'status' => true,
                 'message' => '6 digit otp code send to your email',
             ], 200);
         } else {
             return response()->json([
-                'status' => 'failed',
+                'status' => false,
                 'message' => 'unauthorized',
             ], 401);
         }
@@ -141,21 +139,23 @@ class UserController extends Controller
         $email = $request->input('email');
         $otp = $request->input('otp');
         $count = User::where('email', '=', $email)
-            ->where('', '=', $otp)->count();
+            ->where('otp', '=', $otp) // Add 'otp' condition here
+            ->count();
+
         if ($count == 1) {
             User::where('email', '=', $email)->update([
                 'otp' => '0',
             ]);
-            $token = JwtToken::createToken($request->input('email'));
+            $token = JwtToken::setPasswordToken($request->input('email'));
             return response()->json([
-                'status' => 'success',
+                'status' => true,
                 'message' => 'Otp Verification Successful',
                 'token' => $token
             ], 200);
         } else {
             return response()->json(
                 [
-                    'status' => 'Failed',
+                    'status' => false,
                     'message' => 'Verification failed'
                 ],
                 401
@@ -165,22 +165,22 @@ class UserController extends Controller
     public function resetPassword(Request $request)
     {
         try {
-            $email = $request->header("email");
-            $password = $request->input("password");
+            $email = $request->header('email');
+            $password = $request->input('password');
 
-            User::where("email", "=", $email)->update([
-                "password" => $password
+            User::where('email', '=', $email)->update([
+                'password' => Hash::make($password), // Hash the new password
             ]);
 
             return response()->json([
-                "status" => "Success",
-                "message" => "Password Reset Successful"
+                'status' => true,
+                'message' => 'Password Reset Successful'
             ], 200);
 
         } catch (Exception $exception) {
             return response()->json([
-                "status" => "Failed",
-                "message" => "Password Reset Failed"
+                'status' => false,
+                'message' => 'Password Reset Failed'
             ], 401);
         }
     }

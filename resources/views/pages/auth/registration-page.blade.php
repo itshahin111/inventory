@@ -28,23 +28,24 @@
         function showSuccessToast(message) {
             Toastify({
                 text: message,
-                duration: 3000,
+                duration: 1000,
                 close: true,
                 gravity: "top", // top or bottom
                 position: "right", // left, center or right
                 backgroundColor: "green",
                 stopOnFocus: true,
-                onClick: function() {
-                    window.location.href = '/userLogin'; // Redirect to login page on click
-                }
             }).showToast();
+            // auto redirect to dashboard
+            setTimeout(function() {
+                window.location.href = '/userLogin'; // Redirect to the login page
+            }, 800);
         }
 
         // Error Toast
         function showErrorToast(message) {
             Toastify({
                 text: message,
-                duration: 3000,
+                duration: 1000,
                 close: true,
                 gravity: "top",
                 position: "right",

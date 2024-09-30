@@ -12,6 +12,8 @@
 <body>
     <h1>Verify OTP</h1>
     <form id="verify-otp-form">
+        <!-- Include CSRF Token for Laravel POST requests -->
+        @csrf
         <input type="email" name="email" placeholder="Email" required><br>
         <input type="text" name="otp" placeholder="Enter OTP" required><br>
         <button type="submit">Verify OTP</button>
@@ -20,15 +22,23 @@
     <script>
         $('#verify-otp-form').on('submit', function(e) {
             e.preventDefault();
+
             $.ajax({
                 url: '/verify-otp',
                 method: 'POST',
-                data: $(this).serialize(),
+                data: $(this).serialize(), // Serialize form data
                 success: function(response) {
+                    // Show a success message from the response
                     alert(response.message);
+                    // Optionally redirect to another page after successful verification
+                    window.location.href = '/dashboard'; // Redirect to dashboard
                 },
                 error: function(xhr) {
-                    alert(xhr.responseJSON.message);
+                    if (xhr.responseJSON && xhr.responseJSON.message) {
+                        alert(xhr.responseJSON.message); // Show error from server
+                    } else {
+                        alert('An error occurred. Please try again.'); // Fallback error
+                    }
                 }
             });
         });
