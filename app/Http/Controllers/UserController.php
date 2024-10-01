@@ -41,6 +41,10 @@ class UserController extends Controller
         return view('pages.auth.verify-otp-page');
 
     }
+    function resetPasswordPage()
+    {
+        return view('pages.auth.reset-password-page');
+    }
 
 
     public function register(Request $request)

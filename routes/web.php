@@ -19,20 +19,30 @@ use Illuminate\Support\Facades\Route;
 // Route::get('/', function () {
 //     return view('welcome');
 // });
-
+// User Web Routes
 Route::get('/userLogin', [UserController::class, 'LoginPage']);
 Route::get('/registration', [UserController::class, 'RegistrationPage']);
-
 Route::get('/sendOtp', [UserController::class, 'SendOtpPage']);
 Route::get('/verifyOtp', [UserController::class, 'VerifyOTPPage']);
 
+//User Api Routes
 Route::post('/register', [UserController::class, 'register']);
 Route::post('/login', [UserController::class, 'login']);
 Route::post('/otp-send', [UserController::class, 'otpSend']);
-Route::post('/otp-verify', [UserController::class, 'otpVerify'])->middleware([TokenVerifyMiddleware::class]);
-
-Route::post('/reset-pass', [UserController::class, 'resetPassword'])->middleware([TokenVerifyMiddleware::class]);
+Route::post('/otp-verify', [UserController::class, 'otpVerify']);
 
 
-// Admin Route
-Route::get('/dashboard', [AdminController::class, 'adminPage'])->middleware([TokenVerifyMiddleware::class]);
+
+// Web Route Group
+Route::middleware(['TokenVerifyMiddleware'])->group(function () {
+    Route::get('/resetPassword', [UserController::class, 'resetPasswordPage']);
+
+});
+
+
+// Api Route Group with Middleware
+Route::middleware(['TokenVerifyMiddleware'])->group(function () {
+    Route::post('/reset-pass', [UserController::class, 'resetPassword']);
+    // Admin Route
+    Route::get('/dashboard', [AdminController::class, 'adminPage']);
+});

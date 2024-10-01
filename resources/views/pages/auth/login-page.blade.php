@@ -16,7 +16,9 @@
     <form id="login-form">
         <input id="email" type="email" name="email" placeholder="Email" required><br>
         <input id="password" type="password" name="password" placeholder="Password" required><br>
-        <button type="submit">Login</button>
+        <button type="submit">Login</button><br>
+        {{-- forgot password --}}
+        <a href="{{ url('/sendOtp') }}">Forgot Password?</a>
     </form>
 
     <script>
