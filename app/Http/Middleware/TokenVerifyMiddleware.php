@@ -9,6 +9,11 @@ use Symfony\Component\HttpFoundation\Response;
 
 class TokenVerifyMiddleware
 {
+    protected $routeMiddleware = [
+        // other middlewares
+        'token.verify' => \App\Http\Middleware\TokenVerifyMiddleware::class,
+    ];
+
     /**
      * Handle an incoming request.
      *
@@ -19,7 +24,7 @@ class TokenVerifyMiddleware
 
 
         $token = $request->cookie('token');
-        $result = JWTToken::VerifyToken($token);
+        $result = JwtToken::verifyToken($token);
         if ($result == "unauthorized") {
             return redirect('/userLogin');
         } else {
