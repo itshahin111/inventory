@@ -20,6 +20,8 @@
             <a class="nav-link" href="#add-item">Add Item</a>
             <a class="nav-link" href="#manage-items">Manage Items</a>
         </nav>
+        {{-- Logout --}}
+        <a href="{{ url('logout') }}" class="btn btn-sm btn-outline-danger">Logout</a>
 
         <!-- Inventory Section -->
         <div id="inventory" class="mb-5">

@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Auth\Events\Logout;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\AdminController;
@@ -26,6 +27,7 @@ Route::get('/userLogin', [UserController::class, 'LoginPage']);
 Route::get('/registration', [UserController::class, 'RegistrationPage']);
 Route::get('/sendOtp', [UserController::class, 'SendOtpPage']);
 Route::get('/verifyOtp', [UserController::class, 'VerifyOTPPage']);
+Route::get('/logout', [UserController::class, 'logout']);
 
 //User Api Routes
 Route::post('/register', [UserController::class, 'register']);
@@ -36,24 +38,24 @@ Route::post('/otp-verify', [UserController::class, 'otpVerify']);
 
 
 // Web Route Group
-Route::middleware(['TokenVerifyMiddleware'])->group(function () {
-    Route::get('/resetPassword', [UserController::class, 'resetPasswordPage']);
-    Route::get('/categoryList', [CategoryController::class, 'categoryList']);
-    Route::get("/list-product", [ProductController::class, 'ProductList']);
 
-});
+Route::get('/resetPassword', [UserController::class, 'resetPasswordPage'])->middleware([TokenVerifyMiddleware::class]);
+Route::get('/categoryList', [CategoryController::class, 'categoryList'])->middleware([TokenVerifyMiddleware::class]);
+Route::get("/list-product", [ProductController::class, 'ProductList'])->middleware([TokenVerifyMiddleware::class]);
+
+
 
 
 // Api Route Group with Middleware
-Route::middleware(['TokenVerifyMiddleware'])->group(function () {
-    Route::post('/reset-pass', [UserController::class, 'resetPassword']);
-    // Admin Route
-    Route::get('/dashboard', [AdminController::class, 'adminPage']);
-    // Category api
-    Route::post('/addCategory', [CategoryController::class, 'addCategory']);
-    Route::delete('/deleteCategory', [CategoryController::class, 'deleteCategory']);
-    Route::put('/updateCategory', [CategoryController::class, 'updateCategory']);
-    Route::post('/editCategory', [CategoryController::class, 'editCategory']);
-    Route::post("/addProduct", [ProductController::class, 'addProduct']);
+// Route::middleware(['TokenVerifyMiddleware'])->group(function () {
+Route::post('/reset-pass', [UserController::class, 'resetPassword']);
+// Admin Route
+Route::get('/dashboard', [AdminController::class, 'adminPage'])->middleware([TokenVerifyMiddleware::class]);
+// Category api
+Route::post('/addCategory', [CategoryController::class, 'addCategory'])->middleware([TokenVerifyMiddleware::class]);
+Route::delete('/deleteCategory', [CategoryController::class, 'deleteCategory'])->middleware([TokenVerifyMiddleware::class]);
+Route::put('/updateCategory', [CategoryController::class, 'updateCategory'])->middleware([TokenVerifyMiddleware::class]);
+Route::post('/editCategory', [CategoryController::class, 'editCategory'])->middleware([TokenVerifyMiddleware::class]);
+Route::post("/addProduct", [ProductController::class, 'addProduct'])->middleware([TokenVerifyMiddleware::class]);
 
-});
+// });

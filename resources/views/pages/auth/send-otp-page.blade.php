@@ -64,10 +64,14 @@
                     // On successful response
                     if (response.data.status === 'success') {
                         // Show success toast and redirect to the dashboard
-                        showSuccessToast(response.data.message);
+                        showSuccessToast(response.status.message);
+                        sessionStorage.setItem('email', email);
+                        setTimeout(() => {
+                            window.location.href = '/verifyOtp'
+                        }, 3000);
                     } else {
                         // Show error toast
-                        showErrorToast('OTP sending failed. Unauthorized.');
+                        showErrorToast();
                     }
                 })
                 .catch(function(error) {

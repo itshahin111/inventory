@@ -17,8 +17,11 @@
         <input id="email" type="email" name="email" placeholder="Email" required><br>
         <input id="password" type="password" name="password" placeholder="Password" required><br>
         <button type="submit">Login</button><br>
-        {{-- forgot password --}}
-        <a href="{{ url('/sendOtp') }}">Forgot Password?</a>
+        <p>
+            If you don't have an account yet, <a href="{{ url('/registration') }}">sign up here</a><br>
+            If you've forgotten your password, <a href="{{ url('/sendOtp') }}">click here</a> to get a password reset
+            link.
+        </p>
     </form>
 
     <script>

@@ -22,6 +22,11 @@
         <input id="password" type="password" name="password" placeholder="Password" required><br>
         <button type="button" onclick="onRegistration()">Register</button>
     </form>
+    {{-- login page --}}
+    <p>
+        Already have an account?<br>
+        <a href="{{ url('/userLogin') }}">Login here</a>
+    </p>
 
     <script>
         // Success Toast with clickable link
