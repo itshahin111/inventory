@@ -38,9 +38,14 @@ class JwtToken
     public static function verifyToken($token)
     {
         try {
-            $key = env("JWT_KEY");
-            $decode = JWT::decode($token, new Key($key, 'HS256'));
-            return $decode; // Return the decoded token
+            if ($token == null) {
+                return 'unauthorized';
+            } else {
+                $key = env("JWT_KEY");
+                $decode = JWT::decode($token, new Key($key, 'HS256'));
+                return $decode; // Return the decoded token
+            }
+
         } catch (Exception $exception) {
             return 'unauthorized';
         }

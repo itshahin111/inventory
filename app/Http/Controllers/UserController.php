@@ -24,22 +24,20 @@ class UserController extends Controller
     }
     function LoginPage()
     {
-
         return view('pages.auth.login-page');
-
+    }
+    function userProfilePage()
+    {
+        return view('pages.auth.user-profile');
     }
 
     function SendOtpPage()
     {
-
         return view('pages.auth.send-otp-page');
-
     }
-    function VerifyOTPPage()
+    function VerifyOtpPage()
     {
-
         return view('pages.auth.verify-otp-page');
-
     }
     function resetPasswordPage()
     {
@@ -115,7 +113,50 @@ class UserController extends Controller
             ], 401);
         }
     }
+    function userProfile(Request $request)
+    {
+        $email = $request->header('email');
+        $user = User::where('email', $email)->first();
+        return view('pages.auth.user-profile');
+    }
 
+    function updateProfile(Request $request)
+    {
+        try {
+            $email = $request->header('email');
+            $firstName = $request->input('firstName');
+            $lastName = $request->input('lastName');
+            $mobile = $request->input('mobile');
+            $password = $request->input('password');
+
+            // Update the user
+            $user = User::where('email', $email)->first();
+            if (!$user) {
+                return response()->json([
+                    'status' => 'fail',
+                    'message' => 'User not found',
+                ], 404);
+            }
+
+            $user->update([
+                'firstName' => $firstName,
+                'lastName' => $lastName,
+                'mobile' => $mobile,
+                'password' => Hash::make($password), // Hash the password before saving
+            ]);
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Profile updated successfully',
+            ], 200);
+
+        } catch (Exception $exception) {
+            return response()->json([
+                'status' => 'fail',
+                'message' => 'Something went wrong: ' . $exception->getMessage(),
+            ], 500);
+        }
+    }
 
     public function otpSend(Request $request)
     {

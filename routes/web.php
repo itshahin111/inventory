@@ -26,14 +26,17 @@ use App\Http\Middleware\TokenVerifyMiddleware;
 Route::get('/userLogin', [UserController::class, 'LoginPage']);
 Route::get('/registration', [UserController::class, 'RegistrationPage']);
 Route::get('/sendOtp', [UserController::class, 'SendOtpPage']);
-Route::get('/verifyOtp', [UserController::class, 'VerifyOTPPage']);
+Route::get('/verifyOtp', [UserController::class, 'VerifyOtpPage']);
 Route::get('/logout', [UserController::class, 'logout']);
+// Route::get('/profile', [UserController::class, 'userProfilePage'])->middleware([TokenVerifyMiddleware::class]);
+Route::get('/userProfile', [UserController::class, 'userProfile'])->middleware([TokenVerifyMiddleware::class]);
 
 //User Api Routes
 Route::post('/register', [UserController::class, 'register']);
 Route::post('/login', [UserController::class, 'login']);
 Route::post('/otp-send', [UserController::class, 'otpSend']);
 Route::post('/otp-verify', [UserController::class, 'otpVerify']);
+Route::post('/update-profile', [UserController::class, 'updateProfile'])->middleware([TokenVerifyMiddleware::class]);
 
 
 
@@ -41,7 +44,7 @@ Route::post('/otp-verify', [UserController::class, 'otpVerify']);
 
 Route::get('/resetPassword', [UserController::class, 'resetPasswordPage'])->middleware([TokenVerifyMiddleware::class]);
 Route::get('/categoryList', [CategoryController::class, 'categoryList'])->middleware([TokenVerifyMiddleware::class]);
-Route::get("/list-product", [ProductController::class, 'ProductList'])->middleware([TokenVerifyMiddleware::class]);
+Route::get("/productList", [ProductController::class, 'ProductList'])->middleware([TokenVerifyMiddleware::class]);
 
 
 

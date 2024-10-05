@@ -13,8 +13,10 @@
 <body>
     <div class="container mt-4">
         <h1 class="text-center">Inventory Management Dashboard</h1>
+        <a href="{{ url('userProfile') }}" class="btn btn-sm btn-outline-warning">Update Profile</a>
 
         <!-- Navigation -->
+
         <nav class="nav justify-content-center mb-4">
             <a class="nav-link active" href="#inventory">Inventory</a>
             <a class="nav-link" href="#add-item">Add Item</a>
