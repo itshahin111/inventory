@@ -18,11 +18,11 @@ class UserController extends Controller
 {
 
 
-    function RegistrationPage()
+    function registrationPage()
     {
         return view('pages.auth.registration-page');
     }
-    function LoginPage()
+    function loginPage()
     {
         return view('pages.auth.login-page');
     }
@@ -31,11 +31,12 @@ class UserController extends Controller
         return view('pages.auth.user-profile');
     }
 
-    function SendOtpPage()
+
+    function sendOtpPage()
     {
         return view('pages.auth.send-otp-page');
     }
-    function VerifyOtpPage()
+    function verifyOtpPage()
     {
         return view('pages.auth.verify-otp-page');
     }
@@ -117,7 +118,23 @@ class UserController extends Controller
     {
         $email = $request->header('email');
         $user = User::where('email', $email)->first();
-        return view('pages.auth.user-profile');
+
+        if (!$user) {
+            return response()->json([
+                'status' => false,
+                'message' => 'User not found',
+            ], 404);
+        }
+
+        return response()->json([
+            'status' => true,
+            'data' => [
+                'email' => $user->email,
+                'firstName' => $user->firstName,
+                'lastName' => $user->lastName,
+                'phone' => $user->phone
+            ]
+        ], 200);
     }
 
     function updateProfile(Request $request)
@@ -126,11 +143,12 @@ class UserController extends Controller
             $email = $request->header('email');
             $firstName = $request->input('firstName');
             $lastName = $request->input('lastName');
-            $mobile = $request->input('mobile');
+            $phone = $request->input('phone');
             $password = $request->input('password');
 
-            // Update the user
+            // Find the user by email
             $user = User::where('email', $email)->first();
+
             if (!$user) {
                 return response()->json([
                     'status' => 'fail',
@@ -138,26 +156,26 @@ class UserController extends Controller
                 ], 404);
             }
 
+            // Update user data
             $user->update([
                 'firstName' => $firstName,
                 'lastName' => $lastName,
-                'mobile' => $mobile,
+                'phone' => $phone,
                 'password' => Hash::make($password), // Hash the password before saving
             ]);
 
             return response()->json([
-                'status' => 'success',
+                'status' => true,
                 'message' => 'Profile updated successfully',
             ], 200);
 
         } catch (Exception $exception) {
             return response()->json([
-                'status' => 'fail',
+                'status' => false,
                 'message' => 'Something went wrong: ' . $exception->getMessage(),
             ], 500);
         }
     }
-
     public function otpSend(Request $request)
     {
         $email = $request->input('email');
@@ -232,5 +250,7 @@ class UserController extends Controller
     public function logout(Request $request)
     {
         return redirect('userLogin')->cookie('token', '', '-1');
+
     }
+
 }

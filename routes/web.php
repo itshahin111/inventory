@@ -28,7 +28,7 @@ Route::get('/registration', [UserController::class, 'RegistrationPage']);
 Route::get('/sendOtp', [UserController::class, 'SendOtpPage']);
 Route::get('/verifyOtp', [UserController::class, 'VerifyOtpPage']);
 Route::get('/logout', [UserController::class, 'logout']);
-// Route::get('/profile', [UserController::class, 'userProfilePage'])->middleware([TokenVerifyMiddleware::class]);
+Route::get('/profile', [UserController::class, 'userProfilePage'])->middleware([TokenVerifyMiddleware::class]);
 Route::get('/userProfile', [UserController::class, 'userProfile'])->middleware([TokenVerifyMiddleware::class]);
 
 //User Api Routes
