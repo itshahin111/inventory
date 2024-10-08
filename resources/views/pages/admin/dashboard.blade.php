@@ -6,8 +6,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard</title>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/5.3.0/css/bootstrap.min.css">
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link rel="stylesheet" href="{{ asset('css/admin-dashboard.css') }}">
+    <link rel="stylesheet" href="{{ asset('bootstrap-5.3.3/css/bootstrap.min.css') }}">
+    <script src="{{ asset('js/jquery-3.7.1.min.js') }}"></script>
+    <script src="{{ asset('js/jquery.datatables.min.js') }}"></script>
 </head>
 
 <body>
@@ -16,6 +18,7 @@
         <a href="{{ url('profile') }}" class="btn btn-sm btn-outline-warning">Update Profile</a>
 
         <!-- Navigation -->
+        <a href="{{ url('logout') }}" class="btn btn-sm btn-outline-danger">Logout</a>
 
         <nav class="nav justify-content-center mb-4">
             <a class="nav-link active" href="#inventory">Inventory</a>
@@ -23,7 +26,6 @@
             <a class="nav-link" href="#manage-items">Manage Items</a>
         </nav>
         {{-- Logout --}}
-        <a href="{{ url('logout') }}" class="btn btn-sm btn-outline-danger">Logout</a>
 
         <!-- Inventory Section -->
         <div id="inventory" class="mb-5">
@@ -80,7 +82,7 @@
             </form>
         </div>
     </div>
-
+    <script src="{{ asset('bootstrap-5.3.3/js/bootstrap.bundle.js') }}"></script>
     <script>
         // Example AJAX request to fetch inventory items
         $(document).ready(function() {
