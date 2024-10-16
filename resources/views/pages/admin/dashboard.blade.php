@@ -9,159 +9,117 @@
     <link rel="stylesheet" href="{{ asset('css/admin-dashboard.css') }}">
     <link rel="stylesheet" href="{{ asset('bootstrap-5.3.3/css/bootstrap.min.css') }}">
     <script src="{{ asset('js/jquery-3.7.1.min.js') }}"></script>
-    <script src="{{ asset('js/jquery.datatables.min.js') }}"></script>
+    <script src="{{ asset('bootstrap-5.3.3/js/bootstrap.bundle.js') }}"></script>
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+
+        .sidebar {
+            height: 100vh;
+            position: fixed;
+            top: 56px;
+            /* Adjust for the navbar height */
+            left: 0;
+            width: 220px;
+            background-color: #343a40;
+            padding-top: 20px;
+        }
+
+        .sidebar a {
+            color: #ffffff;
+        }
+
+        .sidebar a:hover {
+            background-color: #495057;
+            text-decoration: none;
+        }
+
+        .content {
+            margin-left: 240px;
+            /* Adjust for sidebar width */
+            padding: 20px;
+        }
+
+        .navbar {
+            background-color: #007bff;
+        }
+
+        .navbar-brand {
+            color: white !important;
+        }
+
+        .navbar-nav .nav-link {
+            color: white !important;
+        }
+
+        .navbar-nav .nav-link:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        h1 {
+            margin-bottom: 20px;
+        }
+
+        .btn {
+            margin: 5px;
+        }
+    </style>
 </head>
 
 <body>
-    <div class="container mt-4">
-        <h1 class="text-center">Inventory Management Dashboard</h1>
-        <a href="{{ url('profile') }}" class="btn btn-sm btn-outline-warning">Update Profile</a>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-light">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">Admin Dashboard</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <div class="ms-auto">
+                    <a href="{{ url('profile') }}" class="btn btn-sm btn-outline-warning">Update Profile</a>
+                    <a href="{{ url('logout') }}" class="btn btn-sm btn-outline-danger">Logout</a>
+                </div>
+            </div>
+        </div>
+    </nav>
 
-        <!-- Navigation -->
-        <a href="{{ url('logout') }}" class="btn btn-sm btn-outline-danger">Logout</a>
-
-        <nav class="nav justify-content-center mb-4">
-            <a class="nav-link active" href="#inventory">Inventory</a>
-            <a class="nav-link" href="#add-item">Add Item</a>
-            <a class="nav-link" href="#manage-items">Manage Items</a>
+    <!-- Sidebar Navigation -->
+    <div class="sidebar">
+        <nav class="nav flex-column">
+            <a class="nav-link active" href="{{ url('categoryList') }}">Categories</a>
+            <a class="nav-link" href="{{ url('productList') }}">Products</a>
+            <a class="nav-link" href="{{ url('customer') }}">Customers</a>
+            <a class="nav-link" href="{{ url('orders') }}">Orders</a>
+            <a class="nav-link" href="{{ url('reports') }}">Reports</a>
+            <a class="nav-link" href="{{ url('settings') }}">Settings</a>
         </nav>
-        {{-- Logout --}}
-
-        <!-- Inventory Section -->
-        <div id="inventory" class="mb-5">
-            <h2>Current Inventory</h2>
-            <table class="table table-striped">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Name</th>
-                        <th>Quantity</th>
-                        <th>Price</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody id="inventory-table-body">
-                    <!-- Inventory items will be dynamically populated here -->
-                </tbody>
-            </table>
-        </div>
-
-        <!-- Add Item Section -->
-        <div id="add-item" class="mb-5">
-            <h2>Add New Item</h2>
-            <form id="add-item-form">
-                <div class="mb-3">
-                    <label for="item-name" class="form-label">Item Name</label>
-                    <input type="text" class="form-control" id="item-name" name="name" required>
-                </div>
-                <div class="mb-3">
-                    <label for="item-quantity" class="form-label">Quantity</label>
-                    <input type="number" class="form-control" id="item-quantity" name="quantity" required>
-                </div>
-                <div class="mb-3">
-                    <label for="item-price" class="form-label">Price</label>
-                    <input type="number" step="0.01" class="form-control" id="item-price" name="price" required>
-                </div>
-                <button type="submit" class="btn btn-primary">Add Item</button>
-            </form>
-        </div>
-
-        <!-- Manage Items Section -->
-        <div id="manage-items">
-            <h2>Manage Existing Items</h2>
-            <form id="manage-items-form">
-                <div class="mb-3">
-                    <label for="manage-item-id" class="form-label">Item ID</label>
-                    <input type="number" class="form-control" id="manage-item-id" name="id" required>
-                </div>
-                <div class="mb-3">
-                    <label for="manage-item-quantity" class="form-label">New Quantity</label>
-                    <input type="number" class="form-control" id="manage-item-quantity" name="new_quantity" required>
-                </div>
-                <button type="submit" class="btn btn-warning">Update Quantity</button>
-            </form>
-        </div>
     </div>
-    <script src="{{ asset('bootstrap-5.3.3/js/bootstrap.bundle.js') }}"></script>
-    <script>
-        // Example AJAX request to fetch inventory items
-        $(document).ready(function() {
-            loadInventory();
 
-            $('#add-item-form').on('submit', function(e) {
-                e.preventDefault();
-                $.ajax({
-                    url: '/admin/add-item',
-                    method: 'POST',
-                    data: $(this).serialize(),
-                    success: function(response) {
-                        alert(response.message);
-                        loadInventory(); // Reload inventory after adding
-                    },
-                    error: function(xhr) {
-                        alert(xhr.responseJSON.message);
-                    }
-                });
-            });
+    <!-- Main Content -->
+    <div class="content">
+        <h1 class="text-center">Inventory Management Dashboard</h1>
 
-            $('#manage-items-form').on('submit', function(e) {
-                e.preventDefault();
-                $.ajax({
-                    url: '/admin/manage-item',
-                    method: 'POST',
-                    data: $(this).serialize(),
-                    success: function(response) {
-                        alert(response.message);
-                        loadInventory(); // Reload inventory after updating
-                    },
-                    error: function(xhr) {
-                        alert(xhr.responseJSON.message);
-                    }
-                });
-            });
-        });
+        <!-- Main Dashboard Content Goes Here -->
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="card-title">Dashboard Overview</h5>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text">Welcome to the inventory management dashboard. Here you can manage
+                            categories, products, customers, and more.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-        function loadInventory() {
-            $.ajax({
-                url: '/admin/inventory',
-                method: 'GET',
-                success: function(data) {
-                    const inventoryTableBody = $('#inventory-table-body');
-                    inventoryTableBody.empty();
-                    data.forEach(item => {
-                        inventoryTableBody.append(`
-                            <tr>
-                                <td>${item.id}</td>
-                                <td>${item.name}</td>
-                                <td>${item.quantity}</td>
-                                <td>${item.price}</td>
-                                <td>
-                                    <button class="btn btn-danger" onclick="deleteItem(${item.id})">Delete</button>
-                                </td>
-                            </tr>
-                        `);
-                    });
-                },
-                error: function(xhr) {
-                    alert('Failed to load inventory.');
-                }
-            });
-        }
+        <!-- Additional content sections can be added here -->
 
-        function deleteItem(itemId) {
-            $.ajax({
-                url: `/admin/delete-item/${itemId}`,
-                method: 'DELETE',
-                success: function(response) {
-                    alert(response.message);
-                    loadInventory(); // Reload inventory after deletion
-                },
-                error: function(xhr) {
-                    alert(xhr.responseJSON.message);
-                }
-            });
-        }
-    </script>
+    </div>
+
 </body>
 
 </html>

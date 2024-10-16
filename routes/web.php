@@ -44,7 +44,7 @@ Route::post('/update-profile', [UserController::class, 'updateProfile'])->middle
 // Web Route Group
 
 Route::get('/resetPassword', [UserController::class, 'resetPasswordPage'])->middleware([TokenVerifyMiddleware::class]);
-Route::get('/categoryList', [CategoryController::class, 'categoryList'])->middleware([TokenVerifyMiddleware::class]);
+
 Route::get("/productList", [ProductController::class, 'ProductList'])->middleware([TokenVerifyMiddleware::class]);
 
 
@@ -54,14 +54,18 @@ Route::get("/productList", [ProductController::class, 'ProductList'])->middlewar
 Route::post('/reset-pass', [UserController::class, 'resetPassword']);
 // Admin Route
 Route::get('/dashboard', [AdminController::class, 'adminPage'])->middleware([TokenVerifyMiddleware::class]);
-// Category api
-Route::get('/category', [CategoryController::class, 'categoryList'])->middleware([TokenVerifyMiddleware::class]);
-Route::post('/add-category', [CategoryController::class, 'addCategory'])->middleware([TokenVerifyMiddleware::class]);
-Route::delete('/delete-category', [CategoryController::class, 'deleteCategory'])->middleware([TokenVerifyMiddleware::class]);
-Route::put('/update-category', [CategoryController::class, 'updateCategory'])->middleware([TokenVerifyMiddleware::class]);
-// Route::post('/edit-category', [CategoryController::class, 'editCategory'])->middleware([TokenVerifyMiddleware::class]);
-Route::post("/add-product", [ProductController::class, 'addProduct'])->middleware([TokenVerifyMiddleware::class]);
 
+
+
+// Category api
+Route::middleware([TokenVerifyMiddleware::class])->group(function () {
+    Route::get('categoryList', [CategoryController::class, 'categoryPage']);
+    Route::get('/category', [CategoryController::class, 'categoryList']);
+    Route::post('/add-category', [CategoryController::class, 'addCategory']);
+    Route::delete('/delete-category', [CategoryController::class, 'deleteCategory']);
+    Route::get('/category-id', [CategoryController::class, 'categoryId']);
+    Route::put('/update-category', [CategoryController::class, 'updateCategory']);
+});
 
 Route::post("/add-customer", [customerController::class, 'addCustomer'])->middleware([TokenVerifyMiddleware::class]);
 Route::get("/customers", [customerController::class, 'customerList'])->middleware([TokenVerifyMiddleware::class]);
