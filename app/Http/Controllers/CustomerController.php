@@ -9,7 +9,7 @@ class CustomerController extends Controller
 {
     public function customerPage()
     {
-        return view('pages.admin.customers');
+        return view('pages.components.customer');
     }
 
     public function addCustomer(Request $request)

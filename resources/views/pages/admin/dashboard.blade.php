@@ -31,7 +31,7 @@
         }
 
         .sidebar a:hover {
-            background-color: #495057;
+            background-color: #00c030;
             text-decoration: none;
         }
 
@@ -54,7 +54,7 @@
         }
 
         .navbar-nav .nav-link:hover {
-            background-color: rgba(255, 255, 255, 0.2);
+            background-color: rgba(28, 2, 255, 0.2);
         }
 
         h1 {
@@ -89,36 +89,18 @@
     <div class="sidebar">
         <nav class="nav flex-column">
             <a class="nav-link active" href="{{ url('categoryList') }}">Categories</a>
-            <a class="nav-link" href="{{ url('productList') }}">Products</a>
-            <a class="nav-link" href="{{ url('customer') }}">Customers</a>
+            <a class="nav-link" href="{{ url('product') }}">Products</a>
+            <a class="nav-link" href="{{ url('customers') }}">Customers</a>
             <a class="nav-link" href="{{ url('orders') }}">Orders</a>
             <a class="nav-link" href="{{ url('reports') }}">Reports</a>
             <a class="nav-link" href="{{ url('settings') }}">Settings</a>
         </nav>
     </div>
-
-    <!-- Main Content -->
-    <div class="content">
-        <h1 class="text-center">Inventory Management Dashboard</h1>
-
-        <!-- Main Dashboard Content Goes Here -->
-        <div class="row">
-            <div class="col-md-12">
-                <div class="card mb-4">
-                    <div class="card-header">
-                        <h5 class="card-title">Dashboard Overview</h5>
-                    </div>
-                    <div class="card-body">
-                        <p class="card-text">Welcome to the inventory management dashboard. Here you can manage
-                            categories, products, customers, and more.</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Additional content sections can be added here -->
+    <div>
+        @yield('content')
 
     </div>
+
 
 </body>
 

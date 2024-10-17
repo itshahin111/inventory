@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Categories</title>
+    <title>Manage Products</title>
     <link rel="stylesheet" href="{{ asset('bootstrap-5.3.3/css/bootstrap.min.css') }}">
     <script src="{{ asset('js/jquery-3.7.1.min.js') }}"></script>
     <script src="{{ asset('bootstrap-5.3.3/js/bootstrap.bundle.js') }}"></script>
@@ -26,11 +26,13 @@
             margin-bottom: 20px;
         }
 
-        input[type="text"] {
+        input[type="text"],
+        input[type="number"] {
             padding: 10px;
             border: 1px solid #ccc;
             border-radius: 5px;
             width: 200px;
+            margin-right: 10px;
         }
 
         button {
@@ -40,7 +42,6 @@
             background-color: #007bff;
             color: white;
             cursor: pointer;
-            margin-left: 5px;
         }
 
         button:hover {
@@ -77,7 +78,7 @@
             background-color: #f1f1f1;
         }
 
-        #update-category-modal {
+        #update-product-modal {
             display: none;
             border: 1px solid #ccc;
             padding: 20px;
@@ -95,18 +96,24 @@
         <a class="nav-link" href="#">Home</a>
     </nav>
     <div>
-        <h2>Categories</h2>
-        <form id="add-category-form" style="text-align: center">
-            <input type="text" id="category-name" placeholder="Category Name" required>
-            <button type="submit">Add Category</button>
+        <h2>Manage Products</h2>
+        <form id="add-product-form" style="text-align: center">
+            <input type="text" id="product-name" placeholder="Product Name" required>
+            <input type="number" id="product-price" placeholder="Price" required>
+            <input type="text" id="product-unit" placeholder="Unit" required>
+            <input type="file" id="product-image" required>
+            <button type="submit">Add Product</button>
         </form>
         <div id="loading">Loading...</div>
 
-        <table id="category-list">
+        <table id="product-list">
             <thead>
                 <tr>
                     <th>No</th>
-                    <th>Category Name</th>
+                    <th>Product Name</th>
+                    <th>Price</th>
+                    <th>Unit</th>
+                    <th>Image</th>
                     <th>Actions</th>
                 </tr>
             </thead>
@@ -114,12 +121,15 @@
         </table>
     </div>
 
-    <div id="update-category-modal">
-        <h3>Update Category</h3>
-        <form id="update-category-form">
-            <input type="hidden" id="update-category-id">
-            <input type="text" id="update-category-name" placeholder="New Category Name" required>
-            <button type="submit">Update Category</button>
+    <div id="update-product-modal">
+        <h3>Update Product</h3>
+        <form id="update-product-form" enctype="multipart/form-data">
+            <input type="hidden" id="update-product-id">
+            <input type="text" id="update-product-name" placeholder="New Product Name" required>
+            <input type="number" id="update-product-price" placeholder="New Price" required>
+            <input type="text" id="update-product-unit" placeholder="New Unit" required>
+            <input type="file" id="update-product-image">
+            <button type="submit">Update Product</button>
             <button type="button" id="cancel-update">Cancel</button>
         </form>
     </div>
@@ -128,28 +138,31 @@
         $(document).ready(function() {
             const userId = 'USER_ID'; // Replace with the actual user ID
 
-            // Fetch and render categories when the page loads
-            fetchCategories();
+            // Fetch and render products when the page loads
+            fetchProducts();
 
-            function fetchCategories() {
+            function fetchProducts() {
                 $('#loading').show();
                 $.ajax({
-                    url: '/category',
+                    url: '/productList',
                     type: 'GET',
                     headers: {
                         'id': userId
                     },
                     success: function(data) {
-                        const tbody = $('#category-list tbody');
+                        const tbody = $('#product-list tbody');
                         tbody.empty();
-                        data.forEach(function(category, index) {
+                        data.forEach(function(product, index) {
                             tbody.append(
                                 `<tr>
                                     <td>${index + 1}</td>
-                                    <td>${category.name}</td>
+                                    <td>${product.name}</td>
+                                    <td>${product.price}</td>
+                                    <td>${product.unit}</td>
+                                    <td><img src="${product.img_url}" alt="${product.name}" width="100"></td>
                                     <td>
-                                        <button class="edit-category btn btn-warning btn-sm" data-id="${category.id}">Edit</button>
-                                        <button class="delete-category btn btn-danger btn-sm" data-id="${category.id}">Delete</button>
+                                        <button class="edit-product btn btn-warning btn-sm" data-id="${product.id}">Edit</button>
+                                        <button class="delete-product btn btn-danger btn-sm" data-id="${product.id}">Delete</button>
                                     </td>
                                 </tr>`
                             );
@@ -182,28 +195,28 @@
                 }).showToast();
             }
 
-            // Add new category
-            $('#add-category-form').on('submit', function(e) {
+            // Add new product
+            $('#add-product-form').on('submit', function(e) {
                 e.preventDefault();
-                const categoryName = $('#category-name').val();
+                const formData = new FormData(this);
                 $('#loading').show();
 
                 $.ajax({
-                    url: '/add-category',
+                    url: '/add-product',
                     type: 'POST',
                     headers: {
                         'id': userId
                     },
-                    data: {
-                        name: categoryName
-                    },
+                    data: formData,
+                    contentType: false,
+                    processData: false,
                     success: function() {
-                        $('#category-name').val('');
-                        fetchCategories();
-                        showToast("Category added successfully!", "success");
+                        $('#add-product-form')[0].reset();
+                        fetchProducts();
+                        showToast("Product added successfully!", "success");
                     },
                     error: function() {
-                        showToast("Error adding category. Please try again.", "error");
+                        showToast("Error adding product. Please try again.", "error");
                     },
                     complete: function() {
                         $('#loading').hide();
@@ -211,27 +224,27 @@
                 });
             });
 
-            // Delete a category with confirmation
-            $(document).on('click', '.delete-category', function() {
-                const categoryId = $(this).data('id');
-                if (confirm("Are you sure you want to delete this category?")) {
+            // Delete a product with confirmation
+            $(document).on('click', '.delete-product', function() {
+                const productId = $(this).data('id');
+                if (confirm("Are you sure you want to delete this product?")) {
                     $('#loading').show();
 
                     $.ajax({
-                        url: '/delete-category',
+                        url: '/delete-product',
                         type: 'DELETE',
                         headers: {
                             'id': userId
                         },
                         data: {
-                            id: categoryId
+                            id: productId
                         },
                         success: function() {
-                            fetchCategories();
-                            showToast("Category deleted successfully!", "success");
+                            fetchProducts();
+                            showToast("Product deleted successfully!", "success");
                         },
                         error: function() {
-                            showToast("Error deleting category. Please try again.", "error");
+                            showToast("Error deleting product. Please try again.", "error");
                         },
                         complete: function() {
                             $('#loading').hide();
@@ -240,24 +253,27 @@
                 }
             });
 
-            // Show update form and update category
-            $(document).on('click', '.edit-category', function() {
-                const categoryId = $(this).data('id');
+            // Show update form and update product
+            $(document).on('click', '.edit-product', function() {
+                const productId = $(this).data('id');
                 $('#loading').show();
 
                 $.ajax({
-                    url: '/category-id',
-                    type: 'GET',
+                    url: '/product-id',
+                    type: 'POST',
                     headers: {
                         'id': userId
                     },
                     data: {
-                        id: categoryId
+                        id: productId
                     },
                     success: function(data) {
-                        $('#update-category-id').val(data.id);
-                        $('#update-category-name').val(data.name);
-                        $('#update-category-modal').show();
+                        $('#update-product-id').val(data.id);
+                        $('#update-product-name').val(data.name);
+                        $('#update-product-price').val(data.price);
+                        $('#update-product-unit').val(data.unit);
+                        $('#update-product-image').val(''); // Clear the image input field
+                        $('#update-product-modal').show();
                     },
                     complete: function() {
                         $('#loading').hide();
@@ -265,30 +281,28 @@
                 });
             });
 
-            // Update a category
-            $('#update-category-form').on('submit', function(e) {
+            // Update product
+            $('#update-product-form').on('submit', function(e) {
                 e.preventDefault();
-                const categoryId = $('#update-category-id').val();
-                const newCategoryName = $('#update-category-name').val();
+                const formData = new FormData(this);
                 $('#loading').show();
 
                 $.ajax({
-                    url: '/update-category',
-                    type: 'PUT',
+                    url: '/update-product',
+                    type: 'POST',
                     headers: {
                         'id': userId
                     },
-                    data: {
-                        id: categoryId,
-                        name: newCategoryName
-                    },
+                    data: formData,
+                    contentType: false,
+                    processData: false,
                     success: function() {
-                        $('#update-category-modal').hide();
-                        fetchCategories();
-                        showToast("Category updated successfully!", "success");
+                        fetchProducts();
+                        showToast("Product updated successfully!", "success");
+                        $('#update-product-modal').hide();
                     },
                     error: function() {
-                        showToast("Error updating category. Please try again.", "error");
+                        showToast("Error updating product. Please try again.", "error");
                     },
                     complete: function() {
                         $('#loading').hide();
@@ -296,9 +310,9 @@
                 });
             });
 
-            // Cancel updating category
+            // Cancel update
             $('#cancel-update').on('click', function() {
-                $('#update-category-modal').hide();
+                $('#update-product-modal').hide();
             });
         });
     </script>

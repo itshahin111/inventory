@@ -10,7 +10,7 @@ class ProductController extends Controller
 {
     function ProductPage()
     {
-        return view('pages.components.products');
+        return view('pages.components.product');
     }
 
 
