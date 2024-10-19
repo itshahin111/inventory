@@ -6,24 +6,66 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Categories</title>
     <link rel="stylesheet" href="{{ asset('bootstrap-5.3.3/css/bootstrap.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/admin-dashboard.css') }}">
     <script src="{{ asset('js/jquery-3.7.1.min.js') }}"></script>
     <script src="{{ asset('bootstrap-5.3.3/js/bootstrap.bundle.js') }}"></script>
     <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
     <style>
         body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
             background-color: #f8f9fa;
+        }
+
+        .sidebar {
+            height: 100vh;
+            position: fixed;
+            top: 56px;
+            left: 0;
+            width: 220px;
+            background-color: #343a40;
+            padding-top: 20px;
+        }
+
+        .sidebar a {
+            color: #ffffff;
+        }
+
+        .sidebar a:hover {
+            background-color: #00c030;
+            text-decoration: none;
+        }
+
+        .content {
+            margin-left: 240px;
+            /* Adjust for sidebar width */
+            padding: 20px;
+        }
+
+        .navbar {
+            background-color: #007bff;
+        }
+
+        .navbar-brand {
+            color: white !important;
+        }
+
+        .navbar-nav .nav-link {
+            color: white !important;
+        }
+
+        .navbar-nav .nav-link:hover {
+            background-color: rgba(28, 2, 255, 0.2);
         }
 
         h2 {
             color: #333;
             text-align: center;
+            margin-bottom: 20px;
         }
 
         form {
             margin-bottom: 20px;
+            text-align: center;
         }
 
         input[type="text"] {
@@ -31,6 +73,7 @@
             border: 1px solid #ccc;
             border-radius: 5px;
             width: 200px;
+            margin-right: 5px;
         }
 
         button {
@@ -40,7 +83,6 @@
             background-color: #007bff;
             color: white;
             cursor: pointer;
-            margin-left: 5px;
         }
 
         button:hover {
@@ -50,6 +92,8 @@
         #loading {
             display: none;
             font-weight: bold;
+            text-align: center;
+            margin-top: 20px;
         }
 
         table {
@@ -76,27 +120,42 @@
         tr:hover {
             background-color: #f1f1f1;
         }
-
-        #update-category-modal {
-            display: none;
-            border: 1px solid #ccc;
-            padding: 20px;
-            margin-top: 20px;
-            background-color: white;
-            border-radius: 5px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        }
     </style>
 </head>
 
 <body>
-    <nav class="navbar navbar-light bg-primary">
-        <a class="nav-link" href="{{ url('dashboard') }}">Dashboard</a>
-        <a class="nav-link" href="#">Home</a>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-light">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">Admin Dashboard</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <div class="ms-auto">
+                    <a href="{{ url('profile') }}" class="btn btn-sm btn-outline-warning">Update Profile</a>
+                    <a href="{{ url('logout') }}" class="btn btn-sm btn-outline-danger">Logout</a>
+                </div>
+            </div>
+        </div>
     </nav>
-    <div>
+
+    <!-- Sidebar Navigation -->
+    <div class="sidebar">
+        <nav class="nav flex-column">
+            <a class="nav-link" href="{{ url('categoryList') }}">Categories</a>
+            <a class="nav-link" href="{{ url('product') }}">Products</a>
+            <a class="nav-link" href="{{ url('customers') }}">Customers</a>
+            <a class="nav-link" href="{{ url('orders') }}">Orders</a>
+            <a class="nav-link" href="{{ url('reports') }}">Reports</a>
+            <a class="nav-link" href="{{ url('settings') }}">Settings</a>
+        </nav>
+    </div>
+
+    <div class="content">
         <h2>Categories</h2>
-        <form id="add-category-form" style="text-align: center">
+        <form id="add-category-form">
             <input type="text" id="category-name" placeholder="Category Name" required>
             <button type="submit">Add Category</button>
         </form>
@@ -114,14 +173,32 @@
         </table>
     </div>
 
-    <div id="update-category-modal">
-        <h3>Update Category</h3>
-        <form id="update-category-form">
-            <input type="hidden" id="update-category-id">
-            <input type="text" id="update-category-name" placeholder="New Category Name" required>
-            <button type="submit">Update Category</button>
-            <button type="button" id="cancel-update">Cancel</button>
-        </form>
+    <!-- Update Category Modal -->
+    <div id="update-category-modal" class="modal fade" tabindex="-1" aria-labelledby="updateCategoryModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="updateCategoryModalLabel">Update Category</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="update-category-form">
+                        <input type="hidden" id="update-category-id">
+                        <div class="mb-3">
+                            <label for="update-category-name" class="form-label">New Category Name</label>
+                            <input type="text" id="update-category-name" class="form-control"
+                                placeholder="New Category Name" required>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <button type="submit" class="btn btn-primary">Update Category</button>
+                            <button type="button" id="cancel-update" class="btn btn-secondary"
+                                data-bs-dismiss="modal">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -148,7 +225,7 @@
                                     <td>${index + 1}</td>
                                     <td>${category.name}</td>
                                     <td>
-                                        <button class="edit-category btn btn-warning btn-sm" data-id="${category.id}">Edit</button>
+                                        <button class="edit-category btn btn-warning btn-sm" data-id="${category.id}" data-bs-toggle="modal" data-bs-target="#update-category-modal">Edit</button>
                                         <button class="delete-category btn btn-danger btn-sm" data-id="${category.id}">Delete</button>
                                     </td>
                                 </tr>`
@@ -161,28 +238,7 @@
                 });
             }
 
-            // Show toast notification
-            function showToast(message, type) {
-                const backgroundColors = {
-                    success: "linear-gradient(to right, #28a745, #218838)",
-                    error: "linear-gradient(to right, #dc3545, #c82333)",
-                    info: "linear-gradient(to right, #007bff, #0056b3)"
-                };
-                Toastify({
-                    text: message,
-                    duration: 3000,
-                    gravity: "top",
-                    position: "right",
-                    style: {
-                        background: backgroundColors[type] || backgroundColors.info,
-                        color: "#fff",
-                        borderRadius: "8px",
-                        padding: "10px 20px"
-                    }
-                }).showToast();
-            }
-
-            // Add new category
+            // Add category
             $('#add-category-form').on('submit', function(e) {
                 e.preventDefault();
                 const categoryName = $('#category-name').val();
@@ -198,7 +254,6 @@
                         name: categoryName
                     },
                     success: function() {
-                        $('#category-name').val('');
                         fetchCategories();
                         showToast("Category added successfully!", "success");
                     },
@@ -211,12 +266,11 @@
                 });
             });
 
-            // Delete a category with confirmation
+            // Delete category
             $(document).on('click', '.delete-category', function() {
                 const categoryId = $(this).data('id');
                 if (confirm("Are you sure you want to delete this category?")) {
                     $('#loading').show();
-
                     $.ajax({
                         url: '/delete-category',
                         type: 'DELETE',
@@ -283,7 +337,8 @@
                         name: newCategoryName
                     },
                     success: function() {
-                        $('#update-category-modal').hide();
+                        $('#update-category-modal').modal(
+                            'hide'); // Updated to use Bootstrap's modal method
                         fetchCategories();
                         showToast("Category updated successfully!", "success");
                     },
@@ -298,8 +353,19 @@
 
             // Cancel updating category
             $('#cancel-update').on('click', function() {
-                $('#update-category-modal').hide();
+                $('#update-category-modal').modal('hide'); // Updated to use Bootstrap's modal method
             });
+
+            function showToast(message, type) {
+                Toastify({
+                    text: message,
+                    duration: 3000,
+                    gravity: "top", // top or bottom
+                    position: 'right', // left, center or right
+                    backgroundColor: type === "success" ? "green" : "red",
+                    stopOnFocus: true // Prevents dismissing of toast on hover
+                }).showToast();
+            }
         });
     </script>
 </body>

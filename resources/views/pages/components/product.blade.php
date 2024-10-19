@@ -12,18 +12,59 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
     <style>
         body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
             background-color: #f8f9fa;
+        }
+
+        .sidebar {
+            height: 100vh;
+            position: fixed;
+            top: 56px;
+            left: 0;
+            width: 220px;
+            background-color: #343a40;
+            padding-top: 20px;
+        }
+
+        .sidebar a {
+            color: #ffffff;
+        }
+
+        .sidebar a:hover {
+            background-color: #00c030;
+            text-decoration: none;
+        }
+
+        .content {
+            margin-left: 240px;
+            /* Adjust for sidebar width */
+            padding: 20px;
+        }
+
+        .navbar {
+            background-color: #007bff;
+        }
+
+        .navbar-brand {
+            color: white !important;
+        }
+
+        .navbar-nav .nav-link {
+            color: white !important;
+        }
+
+        .navbar-nav .nav-link:hover {
+            background-color: rgba(28, 2, 255, 0.2);
         }
 
         h2 {
             color: #333;
             text-align: center;
+            margin-bottom: 20px;
         }
 
         form {
             margin-bottom: 20px;
+            text-align: center;
         }
 
         input[type="text"],
@@ -32,7 +73,7 @@
             border: 1px solid #ccc;
             border-radius: 5px;
             width: 200px;
-            margin-right: 10px;
+            margin-right: 5px;
         }
 
         button {
@@ -51,6 +92,8 @@
         #loading {
             display: none;
             font-weight: bold;
+            text-align: center;
+            margin-top: 20px;
         }
 
         table {
@@ -77,27 +120,42 @@
         tr:hover {
             background-color: #f1f1f1;
         }
-
-        #update-product-modal {
-            display: none;
-            border: 1px solid #ccc;
-            padding: 20px;
-            margin-top: 20px;
-            background-color: white;
-            border-radius: 5px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        }
     </style>
 </head>
 
 <body>
-    <nav class="navbar navbar-light bg-primary">
-        <a class="nav-link" href="{{ url('dashboard') }}">Dashboard</a>
-        <a class="nav-link" href="#">Home</a>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-light">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">Admin Dashboard</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <div class="ms-auto">
+                    <a href="{{ url('profile') }}" class="btn btn-sm btn-outline-warning">Update Profile</a>
+                    <a href="{{ url('logout') }}" class="btn btn-sm btn-outline-danger">Logout</a>
+                </div>
+            </div>
+        </div>
     </nav>
-    <div>
+
+    <!-- Sidebar Navigation -->
+    <div class="sidebar">
+        <nav class="nav flex-column">
+            <a class="nav-link" href="{{ url('categoryList') }}">Categories</a>
+            <a class="nav-link" href="{{ url('product') }}">Products</a>
+            <a class="nav-link" href="{{ url('customers') }}">Customers</a>
+            <a class="nav-link" href="{{ url('orders') }}">Orders</a>
+            <a class="nav-link" href="{{ url('reports') }}">Reports</a>
+            <a class="nav-link" href="{{ url('settings') }}">Settings</a>
+        </nav>
+    </div>
+
+    <div class="content">
         <h2>Manage Products</h2>
-        <form id="add-product-form" style="text-align: center">
+        <form id="add-product-form">
             <input type="text" id="product-name" placeholder="Product Name" required>
             <input type="number" id="product-price" placeholder="Price" required>
             <input type="text" id="product-unit" placeholder="Unit" required>
@@ -121,17 +179,46 @@
         </table>
     </div>
 
-    <div id="update-product-modal">
-        <h3>Update Product</h3>
-        <form id="update-product-form" enctype="multipart/form-data">
-            <input type="hidden" id="update-product-id">
-            <input type="text" id="update-product-name" placeholder="New Product Name" required>
-            <input type="number" id="update-product-price" placeholder="New Price" required>
-            <input type="text" id="update-product-unit" placeholder="New Unit" required>
-            <input type="file" id="update-product-image">
-            <button type="submit">Update Product</button>
-            <button type="button" id="cancel-update">Cancel</button>
-        </form>
+    <!-- Update Product Modal -->
+    <div id="update-product-modal" class="modal fade" tabindex="-1" aria-labelledby="updateProductModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="updateProductModalLabel">Update Product</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="update-product-form" enctype="multipart/form-data">
+                        <input type="hidden" id="update-product-id">
+                        <div class="mb-3">
+                            <label for="update-product-name" class="form-label">New Product Name</label>
+                            <input type="text" id="update-product-name" class="form-control"
+                                placeholder="New Product Name" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="update-product-price" class="form-label">New Price</label>
+                            <input type="number" id="update-product-price" class="form-control" placeholder="New Price"
+                                required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="update-product-unit" class="form-label">New Unit</label>
+                            <input type="text" id="update-product-unit" class="form-control" placeholder="New Unit"
+                                required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="update-product-image" class="form-label">New Image</label>
+                            <input type="file" id="update-product-image" class="form-control">
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <button type="submit" class="btn btn-primary">Update Product</button>
+                            <button type="button" id="cancel-update" class="btn btn-secondary"
+                                data-bs-dismiss="modal">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -161,7 +248,7 @@
                                     <td>${product.unit}</td>
                                     <td><img src="${product.img_url}" alt="${product.name}" width="100"></td>
                                     <td>
-                                        <button class="edit-product btn btn-warning btn-sm" data-id="${product.id}">Edit</button>
+                                        <button class="edit-product btn btn-warning btn-sm" data-id="${product.id}" data-bs-toggle="modal" data-bs-target="#update-product-modal">Edit</button>
                                         <button class="delete-product btn btn-danger btn-sm" data-id="${product.id}">Delete</button>
                                     </td>
                                 </tr>`
@@ -205,7 +292,9 @@
                     url: '/add-product',
                     type: 'POST',
                     headers: {
-                        'id': userId
+                        'id': userId,
+                        'category_id': category_id
+
                     },
                     data: formData,
                     contentType: false,
@@ -253,7 +342,7 @@
                 }
             });
 
-            // Show update form and update product
+            // Show update form and populate with product data
             $(document).on('click', '.edit-product', function() {
                 const productId = $(this).data('id');
                 $('#loading').show();
@@ -273,7 +362,6 @@
                         $('#update-product-price').val(data.price);
                         $('#update-product-unit').val(data.unit);
                         $('#update-product-image').val(''); // Clear the image input field
-                        $('#update-product-modal').show();
                     },
                     complete: function() {
                         $('#loading').hide();
@@ -299,7 +387,7 @@
                     success: function() {
                         fetchProducts();
                         showToast("Product updated successfully!", "success");
-                        $('#update-product-modal').hide();
+                        $('#update-product-modal').modal('hide');
                     },
                     error: function() {
                         showToast("Error updating product. Please try again.", "error");
@@ -312,7 +400,7 @@
 
             // Cancel update
             $('#cancel-update').on('click', function() {
-                $('#update-product-modal').hide();
+                $('#update-product-modal').modal('hide');
             });
         });
     </script>

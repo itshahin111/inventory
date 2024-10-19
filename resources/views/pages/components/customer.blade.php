@@ -13,38 +13,63 @@
 
     <style>
         body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
             background-color: #f8f9fa;
+        }
+
+        .sidebar {
+            height: 100vh;
+            position: fixed;
+            top: 56px;
+            /* Adjust for the navbar height */
+            left: 0;
+            width: 220px;
+            background-color: #343a40;
+            padding-top: 20px;
+        }
+
+        .sidebar a {
+            color: #ffffff;
+        }
+
+        .sidebar a:hover {
+            background-color: #00c030;
+            text-decoration: none;
+        }
+
+        .content {
+            margin-left: 240px;
+            /* Adjust for sidebar width */
+            padding: 20px;
+        }
+
+        .navbar {
+            background-color: #007bff;
+        }
+
+        .navbar-brand {
+            color: white !important;
+        }
+
+        .navbar-nav .nav-link {
+            color: white !important;
+        }
+
+        .navbar-nav .nav-link:hover {
+            background-color: rgba(28, 2, 255, 0.2);
         }
 
         h2 {
             color: #333;
             text-align: center;
-        }
-
-        form {
             margin-bottom: 20px;
         }
 
-        input[type="text"] {
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            width: 200px;
-        }
-
-        button {
-            padding: 10px 15px;
-            border: none;
-            border-radius: 5px;
+        .btn-primary {
             background-color: #007bff;
-            color: white;
-            cursor: pointer;
-            margin-left: 5px;
+            border: none;
         }
 
-        button:hover {
+        .btn-primary:hover {
             background-color: #0056b3;
         }
 
@@ -60,7 +85,6 @@
 
         table {
             width: 100%;
-            border-collapse: collapse;
             margin-top: 20px;
             background-color: white;
             border-radius: 8px;
@@ -69,7 +93,7 @@
 
         th,
         td {
-            padding: 10px;
+            padding: 15px;
             text-align: left;
             border-bottom: 1px solid #ddd;
         }
@@ -83,7 +107,7 @@
             background-color: #f1f1f1;
         }
 
-        #update-customer-modal {
+        .modal {
             display: none;
             border: 1px solid #ccc;
             padding: 20px;
@@ -92,45 +116,102 @@
             border-radius: 5px;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         }
+
+        .modal-header {
+            border-bottom: 1px solid #ddd;
+            margin-bottom: 10px;
+        }
+
+        .modal-header h3 {
+            margin: 0;
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 10px;
+        }
     </style>
 </head>
 
 <body>
-    <div>
-        <h2>Customers</h2>
-        <form id="add-customer-form" style="text-align: center">
-            <input type="text" id="customer-name" placeholder="Customer Name" required>
-            <input type="text" id="customer-email" placeholder="Customer Email" required>
-            <input type="text" id="customer-phone" placeholder="Customer Phone" required>
-            <button type="submit">Add Customer</button>
-        </form>
-        <div id="loading">Loading...</div>
-        <div id="error-message"></div>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-light">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">Admin Dashboard</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <div class="ms-auto">
+                    <a href="{{ url('profile') }}" class="btn btn-sm btn-outline-warning">Update Profile</a>
+                    <a href="{{ url('logout') }}" class="btn btn-sm btn-outline-danger">Logout</a>
+                </div>
+            </div>
+        </div>
+    </nav>
 
-        <table id="customer-list">
-            <thead>
-                <tr>
-                    <th>No</th>
-                    <th>Customer Name</th>
-                    <th>Email</th>
-                    <th>Phone</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody></tbody>
-        </table>
+    <!-- Sidebar Navigation -->
+    <div class="sidebar">
+        <nav class="nav flex-column">
+            <a class="nav-link" href="{{ url('categoryList') }}">Categories</a>
+            <a class="nav-link" href="{{ url('product') }}">Products</a>
+            <a class="nav-link active" href="{{ url('customers') }}">Customers</a>
+            <a class="nav-link" href="{{ url('orders') }}">Orders</a>
+            <a class="nav-link" href="{{ url('reports') }}">Reports</a>
+            <a class="nav-link" href="{{ url('settings') }}">Settings</a>
+        </nav>
     </div>
 
-    <div id="update-customer-modal">
-        <h3>Update Customer</h3>
-        <form id="update-customer-form">
-            <input type="hidden" id="update-customer-id">
-            <input type="text" id="update-customer-name" placeholder="New Customer Name" required>
-            <input type="text" id="update-customer-email" placeholder="New Customer Email" required>
-            <input type="text" id="update-customer-phone" placeholder="New Customer Phone" required>
-            <button type="submit">Update</button>
-            <button type="button" id="cancel-update">Cancel</button>
-        </form>
+    <div class="content">
+        <div class="container">
+            <h2>Customers</h2>
+            <form id="add-customer-form" class="text-center mb-4">
+                <input type="text" id="customer-name" class="form-control d-inline-block w-auto"
+                    placeholder="Customer Name" required>
+                <input type="text" id="customer-email" class="form-control d-inline-block w-auto"
+                    placeholder="Customer Email" required>
+                <input type="text" id="customer-phone" class="form-control d-inline-block w-auto"
+                    placeholder="Customer Phone" required>
+                <button type="submit" class="btn btn-primary">Add Customer</button>
+            </form>
+            <div id="loading">Loading...</div>
+            <div id="error-message"></div>
+
+            <table id="customer-list">
+                <thead>
+                    <tr>
+                        <th>No</th>
+                        <th>Customer Name</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+
+        <div class="modal" id="update-customer-modal">
+            <div class="modal-header">
+                <h3>Update Customer</h3>
+            </div>
+            <form id="update-customer-form">
+                <input type="hidden" id="update-customer-id">
+                <input type="text" id="update-customer-name" class="form-control" placeholder="New Customer Name"
+                    required>
+                <input type="text" id="update-customer-email" class="form-control" placeholder="New Customer Email"
+                    required>
+                <input type="text" id="update-customer-phone" class="form-control" placeholder="New Customer Phone"
+                    required>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary">Update</button>
+                    <button type="button" id="cancel-update" class="btn btn-secondary">Cancel</button>
+                </div>
+            </form>
+        </div>
+
     </div>
 
     <script>
@@ -195,43 +276,93 @@
                         color: "#fff",
                         fontSize: "16px",
                         borderRadius: "8px",
-                        boxShadow: "0 5px 15px rgba(0, 0, 0, 0.3)",
-                        padding: "12px 20px"
-                    },
-                    offset: {
-                        y: 70 // Adjust this if the toast overlaps with other content
+                        boxShadow: "0 5px 15px rgba(0, 0, 0, 0.2)"
                     }
                 }).showToast();
             }
 
-            // Add new customer
-            $('#add-customer-form').on('submit', function(e) {
-                e.preventDefault();
-                const customerName = $('#customer-name').val();
-                const customerEmail = $('#customer-email').val();
-                const customerPhone = $('#customer-phone').val();
+            // Add customer
+            $('#add-customer-form').on('submit', function(event) {
+                event.preventDefault();
                 $('#loading').show();
+                $('#error-message').hide();
+
+                const newCustomer = {
+                    name: $('#customer-name').val(),
+                    email: $('#customer-email').val(),
+                    phone: $('#customer-phone').val(),
+                };
 
                 $.ajax({
-                    url: '/add-customer',
+                    url: '/addCustomer',
                     type: 'POST',
+                    data: JSON.stringify(newCustomer),
+                    contentType: 'application/json',
                     headers: {
                         'id': userId
                     },
-                    data: {
-                        name: customerName,
-                        email: customerEmail,
-                        phone: customerPhone
-                    },
                     success: function() {
-                        $('#customer-name').val('');
-                        $('#customer-email').val('');
-                        $('#customer-phone').val('');
-                        fetchCustomers(); // Refresh the list
                         showToast("Customer added successfully!", "success");
+                        fetchCustomers();
                     },
                     error: function() {
                         showToast("Error adding customer. Please try again.", "error");
+                    },
+                    complete: function() {
+                        $('#loading').hide();
+                        $('#add-customer-form')[0].reset(); // Clear the form
+                    }
+                });
+            });
+
+            // Edit customer
+            $(document).on('click', '.edit-customer', function() {
+                const customerId = $(this).data('id');
+
+                $.ajax({
+                    url: `/customer/${customerId}`,
+                    type: 'GET',
+                    success: function(customer) {
+                        $('#update-customer-id').val(customer.id);
+                        $('#update-customer-name').val(customer.name);
+                        $('#update-customer-email').val(customer.email);
+                        $('#update-customer-phone').val(customer.phone);
+                        $('#update-customer-modal').show();
+                    },
+                    error: function() {
+                        showToast("Error fetching customer details.", "error");
+                    }
+                });
+            });
+
+            // Update customer
+            $('#update-customer-form').on('submit', function(event) {
+                event.preventDefault();
+                $('#loading').show();
+                $('#error-message').hide();
+
+                const updatedCustomer = {
+                    id: $('#update-customer-id').val(),
+                    name: $('#update-customer-name').val(),
+                    email: $('#update-customer-email').val(),
+                    phone: $('#update-customer-phone').val(),
+                };
+
+                $.ajax({
+                    url: '/updateCustomer',
+                    type: 'PUT',
+                    data: JSON.stringify(updatedCustomer),
+                    contentType: 'application/json',
+                    headers: {
+                        'id': userId
+                    },
+                    success: function() {
+                        showToast("Customer updated successfully!", "success");
+                        fetchCustomers();
+                        $('#update-customer-modal').hide();
+                    },
+                    error: function() {
+                        showToast("Error updating customer. Please try again.", "error");
                     },
                     complete: function() {
                         $('#loading').hide();
@@ -239,24 +370,22 @@
                 });
             });
 
-            // Delete a customer with confirmation
+            // Delete customer
             $(document).on('click', '.delete-customer', function() {
                 const customerId = $(this).data('id');
-                if (confirm('Are you sure you want to delete this customer?')) {
+
+                if (confirm("Are you sure you want to delete this customer?")) {
                     $('#loading').show();
 
                     $.ajax({
-                        url: '/delete-customer',
+                        url: `/deleteCustomer/${customerId}`,
                         type: 'DELETE',
                         headers: {
                             'id': userId
                         },
-                        data: {
-                            id: customerId
-                        },
                         success: function() {
-                            fetchCustomers(); // Refresh the list
                             showToast("Customer deleted successfully!", "success");
+                            fetchCustomers();
                         },
                         error: function() {
                             showToast("Error deleting customer. Please try again.", "error");
@@ -268,73 +397,7 @@
                 }
             });
 
-            // Show update form
-            $(document).on('click', '.edit-customer', function() {
-                const customerId = $(this).data('id');
-                $('#loading').show();
-
-                $.ajax({
-                    url: '/customer-id',
-                    type: 'POST',
-                    headers: {
-                        'id': userId
-                    },
-                    data: {
-                        id: customerId
-                    },
-                    success: function(data) {
-                        $('#update-customer-id').val(data.id);
-                        $('#update-customer-name').val(data.name);
-                        $('#update-customer-email').val(data.email);
-                        $('#update-customer-phone').val(data.phone);
-                        $('#update-customer-modal').show();
-                    },
-                    error: function() {
-                        showToast("Error fetching customer details. Please try again.",
-                            "error");
-                    },
-                    complete: function() {
-                        $('#loading').hide();
-                    }
-                });
-            });
-
-            // Update a customer
-            $('#update-customer-form').on('submit', function(e) {
-                e.preventDefault();
-                const customerId = $('#update-customer-id').val();
-                const newCustomerName = $('#update-customer-name').val();
-                const newCustomerEmail = $('#update-customer-email').val();
-                const newCustomerPhone = $('#update-customer-phone').val();
-                $('#loading').show();
-
-                $.ajax({
-                    url: '/update-customer',
-                    type: 'PUT',
-                    headers: {
-                        'id': userId
-                    },
-                    data: {
-                        id: customerId,
-                        name: newCustomerName,
-                        email: newCustomerEmail,
-                        phone: newCustomerPhone
-                    },
-                    success: function() {
-                        $('#update-customer-modal').hide();
-                        fetchCustomers(); // Refresh the list
-                        showToast("Customer updated successfully!", "info");
-                    },
-                    error: function() {
-                        showToast("Error updating customer. Please try again.", "error");
-                    },
-                    complete: function() {
-                        $('#loading').hide();
-                    }
-                });
-            });
-
-            // Cancel updating customer
+            // Cancel update
             $('#cancel-update').on('click', function() {
                 $('#update-customer-modal').hide();
             });

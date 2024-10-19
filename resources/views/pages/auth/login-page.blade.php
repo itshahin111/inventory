@@ -5,25 +5,92 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script> <!-- Toastify for toast notifications -->
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .login-container {
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            width: 320px;
+            text-align: center;
+        }
+
+        h1 {
+            color: #333333;
+            margin-bottom: 20px;
+        }
+
+        input[type="email"],
+        input[type="password"],
+        button {
+            width: 100%;
+            padding: 10px;
+            margin: 8px 0;
+            display: block;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+            font-size: 16px;
+        }
+
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        p {
+            font-size: 14px;
+            margin-top: 10px;
+        }
+
+        p a {
+            color: #007bff;
+            text-decoration: none;
+        }
+
+        p a:hover {
+            text-decoration: underline;
+        }
+    </style>
 </head>
 
 <body>
-    <h1>Login Page</h1>
-    <form id="login-form">
-        <input id="email" type="email" name="email" placeholder="Email" required><br>
-        <input id="password" type="password" name="password" placeholder="Password" required><br>
-        <button type="submit">Login</button><br>
-        <p>
-            If you don't have an account yet, <a href="{{ url('/registration') }}">sign up here</a><br>
-            If you've forgotten your password, <a href="{{ url('/sendOtp') }}">click here</a> to get a password reset
-            link.
-        </p>
-    </form>
+    <div class="login-container">
+        <h1>Login</h1>
+        <form id="login-form">
+            <input id="email" type="email" name="email" placeholder="Email" required><br>
+            <input id="password" type="password" name="password" placeholder="Password" required><br>
+            <button type="submit">Login</button><br>
+            <p>
+                If you don't have an account yet, <a href="{{ url('/registration') }}">sign up here</a><br>
+                If you've forgotten your password, <a href="{{ url('/sendOtp') }}">click here</a> to get a password
+                reset
+                link.
+            </p>
+        </form>
+    </div>
 
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
     <script>
         // Success Toast with a clickable link
         function showSuccessToast(message) {
@@ -38,7 +105,7 @@
             }).showToast();
             // auto redirect to dashboard
             setTimeout(function() {
-                window.location.href = '/dashboard'; // Redirect to the login page
+                window.location.href = '/dashboard'; // Redirect to the dashboard
             }, 800);
         }
 
