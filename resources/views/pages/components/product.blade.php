@@ -192,6 +192,11 @@
                     <form id="update-product-form" enctype="multipart/form-data">
                         <input type="hidden" id="update-product-id">
                         <div class="mb-3">
+                            <label class="form-label">Category</label>
+                            <select type="text" class="form-control form-select" id="productCategory">
+                        </div>
+                        <div class="mb-3">
+
                             <label for="update-product-name" class="form-label">New Product Name</label>
                             <input type="text" id="update-product-name" class="form-control"
                                 placeholder="New Product Name" required>
@@ -203,8 +208,8 @@
                         </div>
                         <div class="mb-3">
                             <label for="update-product-unit" class="form-label">New Unit</label>
-                            <input type="text" id="update-product-unit" class="form-control" placeholder="New Unit"
-                                required>
+                            <input type="text" id="update-product-unit" class="form-control"
+                                placeholder="New Unit" required>
                         </div>
                         <div class="mb-3">
                             <label for="update-product-image" class="form-label">New Image</label>
@@ -222,6 +227,7 @@
     </div>
 
     <script>
+        let productCategory = document.getElementById('productCategory').value;
         $(document).ready(function() {
             const userId = 'USER_ID'; // Replace with the actual user ID
 
