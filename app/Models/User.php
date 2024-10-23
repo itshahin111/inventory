@@ -12,4 +12,10 @@ class User extends Model
     protected $attributes = [
         'otp' => '0'
     ];
+
+    public function categories()
+    {
+        return $this->hasMany(Category::class);
+    }
+
 }

@@ -3,7 +3,9 @@
 
 <head>
     <meta charset="UTF-8">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title>Manage Products</title>
     <link rel="stylesheet" href="{{ asset('bootstrap-5.3.3/css/bootstrap.min.css') }}">
     <script src="{{ asset('js/jquery-3.7.1.min.js') }}"></script>
@@ -36,7 +38,6 @@
 
         .content {
             margin-left: 240px;
-            /* Adjust for sidebar width */
             padding: 20px;
         }
 
@@ -73,6 +74,14 @@
             border: 1px solid #ccc;
             border-radius: 5px;
             width: 200px;
+            margin-right: 5px;
+        }
+
+        select,
+        input[type="file"] {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
             margin-right: 5px;
         }
 
@@ -155,16 +164,22 @@
 
     <div class="content">
         <h2>Manage Products</h2>
-        <form id="add-product-form">
-            <input type="text" id="product-name" placeholder="Product Name" required>
-            <input type="number" id="product-price" placeholder="Price" required>
-            <input type="text" id="product-unit" placeholder="Unit" required>
-            <input type="file" id="product-image" required>
+        <form id="productForm">
+            <input type="text" id="name" name="name" placeholder="Product Name" required>
+            <input type="number" id="price" name="price" placeholder="Price" required>
+            <input type="text" id="unit" name="unit" placeholder="Unit" required>
+            <select id="category_id" name="category_id" required>
+                <option value="" disabled selected>Select Category</option>
+                @foreach ($categories as $category)
+                    <option value="{{ $category->id }}">{{ $category->name }}</option>
+                @endforeach
+            </select>
+            <input type="file" id="img" name="img" accept="image/*" required>
             <button type="submit">Add Product</button>
         </form>
-        <div id="loading">Loading...</div>
 
-        <table id="product-list">
+        <div id="loading">Loading...</div>
+        <table id="productTable">
             <thead>
                 <tr>
                     <th>No</th>
@@ -180,234 +195,213 @@
     </div>
 
     <!-- Update Product Modal -->
-    <div id="update-product-modal" class="modal fade" tabindex="-1" aria-labelledby="updateProductModalLabel"
+    <!-- Update Product Modal -->
+    <div class="modal fade" id="updateProductModal" tabindex="-1" aria-labelledby="updateModalLabel"
         aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="updateProductModalLabel">Update Product</h5>
+                    <h5 class="modal-title" id="updateModalLabel">Update Product</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <form id="update-product-form" enctype="multipart/form-data">
-                        <input type="hidden" id="update-product-id">
-                        <div class="mb-3">
-                            <label class="form-label">Category</label>
-                            <select type="text" class="form-control form-select" id="productCategory">
-                        </div>
-                        <div class="mb-3">
-
-                            <label for="update-product-name" class="form-label">New Product Name</label>
-                            <input type="text" id="update-product-name" class="form-control"
-                                placeholder="New Product Name" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="update-product-price" class="form-label">New Price</label>
-                            <input type="number" id="update-product-price" class="form-control" placeholder="New Price"
-                                required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="update-product-unit" class="form-label">New Unit</label>
-                            <input type="text" id="update-product-unit" class="form-control"
-                                placeholder="New Unit" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="update-product-image" class="form-label">New Image</label>
-                            <input type="file" id="update-product-image" class="form-control">
-                        </div>
-                        <div class="d-flex justify-content-between">
-                            <button type="submit" class="btn btn-primary">Update Product</button>
-                            <button type="button" id="cancel-update" class="btn btn-secondary"
-                                data-bs-dismiss="modal">Cancel</button>
-                        </div>
+                    <form id="updateProductForm" enctype="multipart/form-data">
+                        <input type="hidden" id="update_id">
+                        <input type="text" id="update_name" name="name" placeholder="Product Name" required>
+                        <input type="number" id="update_price" name="price" placeholder="Price" required>
+                        <input type="text" id="update_unit" name="unit" placeholder="Unit" required>
+                        <select id="update_category_id" name="category_id" required>
+                            <option value="" disabled selected>Select Category</option>
+                            @foreach ($categories as $category)
+                                <option value="{{ $category->id }}">{{ $category->name }}</option>
+                            @endforeach
+                        </select>
+                        <img id="update_img_preview" src="" alt="" width="100"
+                            style="display: none; margin-top: 10px;">
+                        <label for="update_img">Update Image</label>
+                        <input type="file" id="update_img" name="img" accept="image/*">
                     </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" id="updateProductBtn" class="btn btn-primary">Update Product</button>
                 </div>
             </div>
         </div>
     </div>
 
+
     <script>
-        let productCategory = document.getElementById('productCategory').value;
         $(document).ready(function() {
-            const userId = 'USER_ID'; // Replace with the actual user ID
-
-            // Fetch and render products when the page loads
-            fetchProducts();
-
+            // Fetch and display products
             function fetchProducts() {
-                $('#loading').show();
                 $.ajax({
                     url: '/productList',
                     type: 'GET',
-                    headers: {
-                        'id': userId
-                    },
-                    success: function(data) {
-                        const tbody = $('#product-list tbody');
-                        tbody.empty();
-                        data.forEach(function(product, index) {
-                            tbody.append(
-                                `<tr>
-                                    <td>${index + 1}</td>
+                    success: function(products) {
+                        let rows = '';
+                        products.forEach(product => {
+                            rows += `
+                                <tr>
+                                    <td>${product.id}</td>
                                     <td>${product.name}</td>
                                     <td>${product.price}</td>
                                     <td>${product.unit}</td>
                                     <td><img src="${product.img_url}" alt="${product.name}" width="100"></td>
                                     <td>
-                                        <button class="edit-product btn btn-warning btn-sm" data-id="${product.id}" data-bs-toggle="modal" data-bs-target="#update-product-modal">Edit</button>
-                                        <button class="delete-product btn btn-danger btn-sm" data-id="${product.id}">Delete</button>
+                                        <button class="btn btn-warning edit-btn" data-id="${product.id}" data-bs-toggle="modal" data-bs-target="#updateProductModal">Edit</button>
+                                        <button class="btn btn-danger delete-btn" data-id="${product.id}">Delete</button>
                                     </td>
-                                </tr>`
-                            );
+                                </tr>
+                            `;
                         });
+                        $('#productTable tbody').html(rows);
                     },
-                    complete: function() {
-                        $('#loading').hide();
+                    error: function() {
+                        Toastify({
+                            text: "Error fetching products",
+                            duration: 3000,
+                            gravity: "top",
+                            position: "right",
+                            backgroundColor: "#FF0000",
+                        }).showToast();
                     }
                 });
             }
 
-            // Show toast notification
-            function showToast(message, type) {
-                const backgroundColors = {
-                    success: "linear-gradient(to right, #28a745, #218838)",
-                    error: "linear-gradient(to right, #dc3545, #c82333)",
-                    info: "linear-gradient(to right, #007bff, #0056b3)"
-                };
-                Toastify({
-                    text: message,
-                    duration: 3000,
-                    gravity: "top",
-                    position: "right",
-                    style: {
-                        background: backgroundColors[type] || backgroundColors.info,
-                        color: "#fff",
-                        borderRadius: "8px",
-                        padding: "10px 20px"
-                    }
-                }).showToast();
-            }
-
-            // Add new product
-            $('#add-product-form').on('submit', function(e) {
-                e.preventDefault();
-                const formData = new FormData(this);
+            // Add Product
+            $('#productForm').on('submit', function(event) {
+                event.preventDefault();
                 $('#loading').show();
+                const formData = new FormData(this);
 
                 $.ajax({
                     url: '/add-product',
                     type: 'POST',
-                    headers: {
-                        'id': userId,
-                        'category_id': category_id
-
-                    },
                     data: formData,
-                    contentType: false,
                     processData: false,
-                    success: function() {
-                        $('#add-product-form')[0].reset();
-                        fetchProducts();
-                        showToast("Product added successfully!", "success");
-                    },
-                    error: function() {
-                        showToast("Error adding product. Please try again.", "error");
-                    },
-                    complete: function() {
+                    contentType: false,
+                    success: function(response) {
                         $('#loading').hide();
+                        $('#productForm')[0].reset();
+                        fetchProducts();
+                        Toastify({
+                            text: response.message,
+                            duration: 3000,
+                            gravity: "top",
+                            position: "right",
+                            backgroundColor: "#28a745",
+                        }).showToast();
+                    },
+                    error: function(xhr) {
+                        $('#loading').hide();
+                        Toastify({
+                            text: xhr.responseJSON.message,
+                            duration: 3000,
+                            gravity: "top",
+                            position: "right",
+                            backgroundColor: "#FF0000",
+                        }).showToast();
                     }
                 });
             });
 
-            // Delete a product with confirmation
-            $(document).on('click', '.delete-product', function() {
-                const productId = $(this).data('id');
-                if (confirm("Are you sure you want to delete this product?")) {
-                    $('#loading').show();
+            // Populate modal for editing
+            $(document).on('click', '.edit-btn', function() {
+                const id = $(this).data('id');
 
+                $.ajax({
+                    url: `/product/${id}`,
+                    type: 'GET',
+                    success: function(product) {
+                        $('#update_id').val(product.id);
+                        $('#update_name').val(product.name);
+                        $('#update_price').val(product.price);
+                        $('#update_unit').val(product.unit);
+                        $('#update_category_id').val(product.category_id);
+                        $('#update_img_preview').attr('src', product.img_url)
+                            .show(); // Set the existing image URL and show it
+                    },
+                    error: function() {
+                        Toastify({
+                            text: "Error fetching product data",
+                            duration: 3000,
+                            gravity: "top",
+                            position: "right",
+                            backgroundColor: "#FF0000",
+                        }).showToast();
+                    }
+                });
+            });
+
+
+            // Update Product
+            $('#updateProductBtn').on('click', function() {
+                const id = $('#update_id').val();
+                const formData = new FormData($('#updateProductForm')[0]);
+
+                $.ajax({
+                    url: `/update-product/${id}`,
+                    type: 'POST',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    success: function(response) {
+                        $('#updateProductModal').modal('hide');
+                        fetchProducts();
+                        Toastify({
+                            text: response.message,
+                            duration: 3000,
+                            gravity: "top",
+                            position: "right",
+                            backgroundColor: "#28a745",
+                        }).showToast();
+                    },
+                    error: function(xhr) {
+                        Toastify({
+                            text: xhr.responseJSON.message,
+                            duration: 3000,
+                            gravity: "top",
+                            position: "right",
+                            backgroundColor: "#FF0000",
+                        }).showToast();
+                    }
+                });
+            });
+
+            // Delete Product
+            $(document).on('click', '.delete-btn', function() {
+                const id = $(this).data('id');
+
+                if (confirm('Are you sure you want to delete this product?')) {
                     $.ajax({
-                        url: '/delete-product',
+                        url: `/delete-product/${id}`,
                         type: 'DELETE',
-                        headers: {
-                            'id': userId
-                        },
-                        data: {
-                            id: productId
-                        },
-                        success: function() {
+                        success: function(response) {
                             fetchProducts();
-                            showToast("Product deleted successfully!", "success");
+                            Toastify({
+                                text: response.message,
+                                duration: 3000,
+                                gravity: "top",
+                                position: "right",
+                                backgroundColor: "#28a745",
+                            }).showToast();
                         },
-                        error: function() {
-                            showToast("Error deleting product. Please try again.", "error");
-                        },
-                        complete: function() {
-                            $('#loading').hide();
+                        error: function(xhr) {
+                            Toastify({
+                                text: xhr.responseJSON.message,
+                                duration: 3000,
+                                gravity: "top",
+                                position: "right",
+                                backgroundColor: "#FF0000",
+                            }).showToast();
                         }
                     });
                 }
             });
 
-            // Show update form and populate with product data
-            $(document).on('click', '.edit-product', function() {
-                const productId = $(this).data('id');
-                $('#loading').show();
-
-                $.ajax({
-                    url: '/product-id',
-                    type: 'POST',
-                    headers: {
-                        'id': userId
-                    },
-                    data: {
-                        id: productId
-                    },
-                    success: function(data) {
-                        $('#update-product-id').val(data.id);
-                        $('#update-product-name').val(data.name);
-                        $('#update-product-price').val(data.price);
-                        $('#update-product-unit').val(data.unit);
-                        $('#update-product-image').val(''); // Clear the image input field
-                    },
-                    complete: function() {
-                        $('#loading').hide();
-                    }
-                });
-            });
-
-            // Update product
-            $('#update-product-form').on('submit', function(e) {
-                e.preventDefault();
-                const formData = new FormData(this);
-                $('#loading').show();
-
-                $.ajax({
-                    url: '/update-product',
-                    type: 'POST',
-                    headers: {
-                        'id': userId
-                    },
-                    data: formData,
-                    contentType: false,
-                    processData: false,
-                    success: function() {
-                        fetchProducts();
-                        showToast("Product updated successfully!", "success");
-                        $('#update-product-modal').modal('hide');
-                    },
-                    error: function() {
-                        showToast("Error updating product. Please try again.", "error");
-                    },
-                    complete: function() {
-                        $('#loading').hide();
-                    }
-                });
-            });
-
-            // Cancel update
-            $('#cancel-update').on('click', function() {
-                $('#update-product-modal').modal('hide');
-            });
+            // Initial fetch
+            fetchProducts();
         });
     </script>
 </body>

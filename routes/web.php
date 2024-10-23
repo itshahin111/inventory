@@ -78,10 +78,11 @@ Route::middleware([TokenVerifyMiddleware::class])->group(function () {
 
 
 Route::middleware([TokenVerifyMiddleware::class])->group(function () {
+    Route::get('/categories', [ProductController::class, 'getCategories']);
     Route::get("/product", [ProductController::class, 'productPage']);
     Route::get('/productList', [ProductController::class, 'productList']);
     Route::post('/add-product', [ProductController::class, 'addProduct']);
-    Route::delete('/delete-product', [ProductController::class, 'deleteProduct']);
-    Route::put('/update-product', [ProductController::class, 'updateProduct']);
-    Route::post('/product-id', [ProductController::class, 'productByID']);
+    Route::delete('/delete-product/{id}', [ProductController::class, 'deleteProduct']); // Use {id} to match with the product
+    Route::post('/update-product/{id}', [ProductController::class, 'updateProduct']); // Use {id} to match with the product
+    Route::get('/product/{id}', [ProductController::class, 'productById']);
 });
