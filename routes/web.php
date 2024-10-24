@@ -4,6 +4,7 @@ use Illuminate\Auth\Events\Logout;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\CustomerController;
@@ -85,4 +86,14 @@ Route::middleware([TokenVerifyMiddleware::class])->group(function () {
     Route::delete('/delete-product/{id}', [ProductController::class, 'deleteProduct']); // Use {id} to match with the product
     Route::post('/update-product/{id}', [ProductController::class, 'updateProduct']); // Use {id} to match with the product
     Route::get('/product/{id}', [ProductController::class, 'productById']);
+});
+
+
+
+// Invoice
+Route::middleware([TokenVerifyMiddleware::class])->group(function () {
+    Route::post("/invoice-create", [InvoiceController::class, 'invoiceCreate']);
+    Route::get("/invoice-select", [InvoiceController::class, 'invoiceSelect']);
+    Route::post("/invoice-details", [InvoiceController::class, 'InvoiceDetails']);
+    Route::post("/invoice-delete", [InvoiceController::class, 'invoiceDelete']);
 });
